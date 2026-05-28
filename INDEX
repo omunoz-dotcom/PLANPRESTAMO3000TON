@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Arribo Post-Pago · PASTA DE SOYA 1KG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #F4F2EE;
+    --surface:  #FFFFFF;
+    --border:   #E2DFDA;
+    --border2:  #C8C5BF;
+    --text-1:   #1A1916;
+    --text-2:   #6B6860;
+    --text-3:   #A09D99;
+    --blue:     #185FA5;
+    --blue-lt:  #E6F1FB;
+    --green:    #27500A;
+    --green-lt: #EAF3DE;
+    --green-md: #639922;
+    --amber:    #633806;
+    --amber-lt: #FAEEDA;
+    --amber-md: #BA7517;
+    --red:      #791F1F;
+    --red-lt:   #FCEBEB;
+    --red-md:   #E24B4A;
+    --purple:   #3C3489;
+    --purple-lt:#EEEDFE;
+    --teal:     #085041;
+    --teal-lt:  #E1F5EE;
+    --gray:     #888780;
+    --gray-lt:  #F1EFE8;
+    --radius:   10px;
+    --radius-lg:14px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-left {}
+  .product-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    background: var(--gray-lt);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    margin-bottom: 8px;
+  }
+  .product-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--green-md); display: inline-block; }
+  .page-title {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    color: var(--text-1);
+    line-height: 1.2;
+  }
+  .page-sub {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+  }
+  .topbar-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+  }
+  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--blue);
+    background: var(--blue-lt);
+    color: var(--blue);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-refresh:hover { background: #C5DEFA; }
+  .btn-refresh svg { width: 13px; height: 13px; }
+  .last-update { font-size: 10px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+
+  /* ── KPI row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    border-radius: 3px 0 0 3px;
+  }
+  .kpi.blue::before   { background: var(--blue); }
+  .kpi.green::before  { background: var(--green-md); }
+  .kpi.amber::before  { background: var(--amber-md); }
+  .kpi.purple::before { background: var(--purple); }
+  .kpi.teal::before   { background: var(--teal); }
+  .kpi-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -.02em; line-height: 1; margin-bottom: 3px; }
+  .kpi.blue .kpi-value   { color: var(--blue); }
+  .kpi.green .kpi-value  { color: var(--green); }
+  .kpi.amber .kpi-value  { color: var(--amber); }
+  .kpi.purple .kpi-value { color: var(--purple); }
+  .kpi.teal .kpi-value   { color: var(--teal); }
+  .kpi-hint { font-size: 11px; color: var(--text-3); }
+
+  /* ── Global progress ── */
+  .global-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin-bottom: 1.5rem;
+  }
+  .global-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .global-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); }
+  .global-numbers { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+  .track {
+    height: 10px;
+    background: var(--bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    border: 1px solid var(--border);
+  }
+  .fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .track-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+
+  /* ── Section header ── */
+  .section-hd {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0 1rem;
+  }
+  .section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); }
+
+  /* ── Week cards ── */
+  .week-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin-bottom: 10px;
+    transition: border-color .15s;
+  }
+  .week-card:hover { border-color: var(--border2); }
+  .week-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .week-left {}
+  .week-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .week-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+  .week-meta { font-size: 11px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+  .week-metrics {
+    display: flex;
+    gap: 20px;
+    text-align: right;
+  }
+  .metric { }
+  .metric-val { font-size: 16px; font-weight: 600; letter-spacing: -.01em; display: block; }
+  .metric-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); }
+
+  /* ── Table ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--text-3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    background: var(--bg);
+  }
+  tbody td { padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text-1); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--bg); }
+
+  /* ── Loader / error ── */
+  .loader {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 4rem; gap: 14px;
+    color: var(--text-3); font-size: 13px;
+  }
+  .spinner {
+    width: 30px; height: 30px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .err-box {
+    background: var(--red-lt);
+    border: 1px solid #F09595;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    color: var(--red);
+    font-size: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-3);
+    font-family: 'DM Mono', monospace;
+  }
+  .src-link { color: var(--blue); text-decoration: none; }
+  .src-link:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .week-metrics { gap: 10px; }
+    .metric-val { font-size: 14px; }
+    .page-title { font-size: 20px; }
+    .global-numbers { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="product-tag"><span></span>2004144 · PASTA DE SOYA 1KG</div>
+      <h1 class="page-title">Control de Arribo<br>Post-Pago</h1>
+      <p class="page-sub" id="sub-text">BASE DE DATOS ALMACENERA · PRÉSTAMO 3000 TM</p>
+    </div>
+    <div class="topbar-right">
+      <span class="status-badge" id="status-badge">
+        <span class="dot" id="status-dot"></span>
+        <span id="status-text">Cargando...</span>
+      </span>
+      <button class="btn-refresh" onclick="loadData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>
+        </svg>
+        Actualizar
+      </button>
+      <span class="last-update" id="last-update">—</span>
+    </div>
+  </div>
+
+  <div id="err-container"></div>
+
+  <div id="main">
+    <div class="loader">
+      <div class="spinner"></div>
+      <span>Conectando con Google Sheets...</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Fuente: <a class="src-link" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQsHD68GsN5kH9NtuQF5g_Q_lTQmJEv6YDnLfnd6zurixDZrkw-7loPPxlBEC3khaX3vnlM4eFNuXBy/pub?gid=868160652&single=true&output=csv" target="_blank">Google Sheets · PRESTAMO 3000 TM</a></span>
+    <span id="footer-time">—</span>
+  </div>
+
+</div>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQsHD68GsN5kH9NtuQF5g_Q_lTQmJEv6YDnLfnd6zurixDZrkw-7loPPxlBEC3khaX3vnlM4eFNuXBy/pub?gid=868160652&single=true&output=csv';
+
+// Fallback data (from image)
+const FALLBACK = [
+  {id:'WEEK22',label:'WEEK 22',cupo:500,arribo:0,vehiculos:0,pagos:[{fecha:'28/05/2026',ton:500,arribo:0},{fecha:'29/05/2026',ton:0,arribo:0},{fecha:'30/05/2026',ton:0,arribo:0}]},
+  {id:'WEEK23',label:'WEEK 23',cupo:2500,arribo:0,vehiculos:0,pagos:[{fecha:'31/05/2026',ton:0,arribo:0},{fecha:'01/06/2026',ton:500,arribo:0},{fecha:'02/06/2026',ton:0,arribo:0},{fecha:'03/06/2026',ton:500,arribo:0},{fecha:'04/06/2026',ton:1500,arribo:0},{fecha:'05/06/2026',ton:0,arribo:0},{fecha:'06/06/2026',ton:0,arribo:0}]},
+  {id:'WEEK24',label:'WEEK 24',cupo:0,arribo:0,vehiculos:0,pagos:[{fecha:'07/06/2026',ton:0,arribo:0},{fecha:'08/06/2026',ton:0,arribo:0},{fecha:'09/06/2026',ton:0,arribo:0},{fecha:'10/06/2026',ton:0,arribo:0},{fecha:'11/06/2026',ton:0,arribo:0},{fecha:'12/06/2026',ton:0,arribo:0},{fecha:'13/06/2026',ton:0,arribo:0}]},
+  {id:'WEEK25',label:'WEEK 25',cupo:0,arribo:0,vehiculos:0,pagos:[{fecha:'14/06/2026',ton:0,arribo:0}]},
+];
+
+let weeks = [];
+
+// ── Color helpers ──
+function colSet(p, hasCupo) {
+  if (!hasCupo) return { fill: '#B5D4F4', text: '#0C447C', bg: '#E6F1FB', border: '#85B7EB' };
+  if (p === 0)  return { fill: '#B4B2A9', text: '#444441', bg: '#F1EFE8', border: '#B4B2A9' };
+  if (p < 70)   return { fill: '#97C459', text: '#27500A', bg: '#EAF3DE', border: '#97C459' };
+  if (p <= 100) return { fill: '#EF9F27', text: '#633806', bg: '#FAEEDA', border: '#EF9F27' };
+  return           { fill: '#E24B4A', text: '#791F1F', bg: '#FCEBEB', border: '#E24B4A' };
+}
+function statusLabel(a, c) {
+  if (c === 0) return 'Sin cupo';
+  if (a === 0) return 'Pendiente';
+  if (a < c)   return 'En progreso';
+  if (a === c) return 'Completo';
+  return 'Excede cupo';
+}
+function pct(a, c) { return c > 0 ? Math.min(999, Math.round(a / c * 100)) : 0; }
+function fmt(n) { return Number(n).toLocaleString('es-EC'); }
+
+// ── CSV parser ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const map = {};
+  lines.slice(1).forEach(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    cols.push(cur.trim());
+    const wk = (cols[0] || '').trim();
+    if (!wk.toUpperCase().includes('WEEK')) return;
+    const ton    = parseFloat(cols[3]) || 0;
+    const fecha  = (cols[4] || '').trim();
+    const arribo = parseFloat(cols[5]) || 0;
+    const veh    = parseFloat(cols[6]) || 0;
+    if (!map[wk]) map[wk] = { id: wk.replace(/\s/g,''), label: wk, cupo: 0, arribo: 0, vehiculos: 0, pagos: [] };
+    map[wk].cupo     += ton;
+    map[wk].arribo   += arribo;
+    map[wk].vehiculos+= veh;
+    if (fecha) map[wk].pagos.push({ fecha, ton, arribo });
+  });
+  return Object.values(map);
+}
+
+// ── Render ──
+function render() {
+  const totCupo = weeks.reduce((s,w) => s+w.cupo, 0);
+  const totArr  = weeks.reduce((s,w) => s+w.arribo, 0);
+  const totVeh  = weeks.reduce((s,w) => s+w.vehiculos, 0);
+  const avail   = Math.max(0, totCupo - totArr);
+  const gPct    = pct(totArr, totCupo);
+  const gCol    = colSet(gPct, totCupo > 0);
+  const semAct  = weeks.filter(w => w.cupo > 0).length;
+
+  // Status badge
+  const badge = document.getElementById('status-badge');
+  const dot   = document.getElementById('status-dot');
+  const stxt  = document.getElementById('status-text');
+  badge.style.cssText = `background:${gCol.bg};color:${gCol.text};border:1px solid ${gCol.border};`;
+  dot.style.background = gCol.fill;
+  stxt.textContent = totCupo > 0 ? `${gPct}% utilizado` : 'Sin cupo aperturado';
+
+  // KPI row
+  let html = `
+  <div class="kpi-row">
+    <div class="kpi blue">
+      <div class="kpi-label">Cupo aperturado</div>
+      <div class="kpi-value">${fmt(totCupo)}</div>
+      <div class="kpi-hint">TON habilitadas</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Arribo registrado</div>
+      <div class="kpi-value">${fmt(totArr)}</div>
+      <div class="kpi-hint">TON ingresadas</div>
+    </div>
+    <div class="kpi ${avail > 0 ? 'amber' : 'teal'}">
+      <div class="kpi-label">Cupo disponible</div>
+      <div class="kpi-value">${fmt(avail)}</div>
+      <div class="kpi-hint">TON por utilizar</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-label">Vehículos</div>
+      <div class="kpi-value">${fmt(totVeh)}</div>
+      <div class="kpi-hint">registrados</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-label">Semanas activas</div>
+      <div class="kpi-value">${semAct} / ${weeks.length}</div>
+      <div class="kpi-hint">con cupo aperturado</div>
+    </div>
+  </div>`;
+
+  // Global progress
+  html += `
+  <div class="global-card">
+    <div class="global-header">
+      <span class="global-label">Ejecución global del cupo</span>
+      <span class="global-numbers" style="color:${gCol.text};">${fmt(totArr)} / ${fmt(totCupo)} TON</span>
+    </div>
+    <div class="track">
+      <div class="fill" style="width:${Math.min(100,gPct)}%;background:${gCol.fill};"></div>
+    </div>
+    <div class="track-labels">
+      <span>0 TON</span>
+      <span style="color:${gCol.text};font-weight:600;">${gPct}%</span>
+      <span>${fmt(totCupo)} TON</span>
+    </div>
+  </div>`;
+
+  // Week cards
+  html += `<div class="section-hd">
+    <span class="section-label">Seguimiento por semana</span>
+    <span style="font-size:11px;color:var(--text-3);">${weeks.length} semanas en seguimiento</span>
+  </div>`;
+
+  weeks.forEach(w => {
+    const p   = pct(w.arribo, w.cupo);
+    const c   = colSet(p, w.cupo > 0);
+    const st  = statusLabel(w.arribo, w.cupo);
+    const primero = w.pagos.find(d => d.ton > 0);
+
+    html += `
+    <div class="week-card">
+      <div class="week-top">
+        <div class="week-left">
+          <div class="week-name-row">
+            <span class="week-name">${w.label}</span>
+            <span class="pill" style="background:${c.bg};color:${c.text};">${st}</span>
+          </div>
+          <div class="week-meta">${primero ? 'Primer pago: '+primero.fecha+' · '+fmt(primero.ton)+' TON' : 'Sin pagos con cupo registrado'}</div>
+        </div>
+        <div class="week-metrics">
+          <div class="metric">
+            <span class="metric-val" style="color:#185FA5;">${fmt(w.cupo)}</span>
+            <span class="metric-lbl">Cupo</span>
+          </div>
+          <div class="metric">
+            <span class="metric-val" style="color:#27500A;">${fmt(w.arribo)}</span>
+            <span class="metric-lbl">Arribo</span>
+          </div>
+          <div class="metric">
+            <span class="metric-val" style="color:${c.text};">${fmt(Math.max(0,w.cupo-w.arribo))}</span>
+            <span class="metric-lbl">Disponible</span>
+          </div>
+          <div class="metric">
+            <span class="metric-val" style="color:#3C3489;">${fmt(w.vehiculos)}</span>
+            <span class="metric-lbl">Vehículos</span>
+          </div>
+        </div>
+      </div>
+      <div class="track">
+        <div class="fill" style="width:${Math.min(100,p)}%;background:${c.fill};"></div>
+      </div>
+      <div class="track-labels">
+        <span>0</span>
+        <span style="color:${c.text};font-weight:600;">${w.cupo > 0 ? p+'% ejecutado' : 'Sin cupo aperturado'}</span>
+        <span>${fmt(w.cupo)} TON</span>
+      </div>
+    </div>`;
+  });
+
+  // Table
+  html += `
+  <div class="section-hd">
+    <span class="section-label">Apertura de cupo por fecha de pago</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Semana</th>
+          <th>Fecha de pago</th>
+          <th style="text-align:right;">Cupo (TON)</th>
+          <th style="text-align:right;">Arribo (TON)</th>
+          <th style="text-align:right;">Acumulado (TON)</th>
+        </tr>
+      </thead>
+      <tbody>`;
+  let acum = 0;
+  weeks.forEach(w => {
+    w.pagos.forEach(pg => {
+      acum += pg.ton;
+      html += `<tr>
+        <td style="color:var(--text-3);font-family:'DM Mono',monospace;">${w.label}</td>
+        <td style="font-family:'DM Mono',monospace;">${pg.fecha}</td>
+        <td style="text-align:right;font-weight:${pg.ton>0?'600':'400'};color:${pg.ton>0?'#185FA5':'var(--text-3)'};">${pg.ton > 0 ? fmt(pg.ton) : '—'}</td>
+        <td style="text-align:right;color:#27500A;font-weight:${pg.arribo>0?'600':'400'};">${pg.arribo > 0 ? fmt(pg.arribo) : '—'}</td>
+        <td style="text-align:right;color:var(--text-2);font-family:'DM Mono',monospace;">${acum > 0 ? fmt(acum) : '—'}</td>
+      </tr>`;
+    });
+  });
+  html += `</tbody></table></div>`;
+
+  document.getElementById('main').innerHTML = html;
+}
+
+// ── Load ──
+async function loadData() {
+  document.getElementById('main').innerHTML = `<div class="loader"><div class="spinner"></div><span>Conectando con Google Sheets...</span></div>`;
+  document.getElementById('err-container').innerHTML = '';
+  document.getElementById('status-text').textContent = 'Cargando...';
+
+  try {
+    const res = await fetch(CSV_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const parsed = parseCSV(text);
+    if (!parsed.length) throw new Error('Sin datos en el CSV');
+    weeks = parsed;
+    const now = new Date();
+    const ts = now.toLocaleDateString('es-EC') + ' · ' + now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('last-update').textContent = 'Actualizado: ' + ts;
+    document.getElementById('footer-time').textContent = ts;
+  } catch(e) {
+    document.getElementById('err-container').innerHTML = `
+      <div class="err-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        No se pudo conectar con Google Sheets (${e.message}). Mostrando datos de respaldo.
+      </div>`;
+    if (!weeks.length) weeks = FALLBACK;
+  }
+  render();
+}
+
+loadData();
+</script>
+</body>
+</html>
