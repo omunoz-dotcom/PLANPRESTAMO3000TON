@@ -3,600 +3,318 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control de Arribo Post-Pago · PASTA DE SOYA 1KG</title>
+<title>Indicador de Abastecimiento — Pasta de Soya · Almacenera S.A.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:       #F4F2EE;
-    --surface:  #FFFFFF;
-    --border:   #E2DFDA;
-    --border2:  #C8C5BF;
-    --text-1:   #1A1916;
-    --text-2:   #6B6860;
-    --text-3:   #A09D99;
-    --blue:     #185FA5;
-    --blue-lt:  #E6F1FB;
-    --green:    #27500A;
-    --green-lt: #EAF3DE;
-    --green-md: #639922;
-    --amber:    #633806;
-    --amber-lt: #FAEEDA;
-    --amber-md: #BA7517;
-    --red:      #791F1F;
-    --red-lt:   #FCEBEB;
-    --red-md:   #E24B4A;
-    --purple:   #3C3489;
-    --purple-lt:#EEEDFE;
-    --teal:     #085041;
-    --teal-lt:  #E1F5EE;
-    --gray:     #888780;
-    --gray-lt:  #F1EFE8;
-    --radius:   10px;
-    --radius-lg:14px;
+  :root{
+    --slate:#1F3B4D; --slate2:#2c5366; --bg:#EDF1F4; --card:#ffffff;
+    --ink:#1b2a33; --muted:#6b7c87; --line:#dde4e9;
+    --blue:#185FA5; --teal:#1D9E75; --amber:#BA7517; --red:#A32D2D; --coral:#D85A30;
   }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text-1);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  /* ── Layout ── */
-  .shell {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-  }
-
-  /* ── Top bar ── */
-  .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .topbar-left {}
-  .product-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    background: var(--gray-lt);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 3px 10px;
-    margin-bottom: 8px;
-  }
-  .product-tag span { width: 6px; height: 6px; border-radius: 50%; background: var(--green-md); display: inline-block; }
-  .page-title {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -.02em;
-    color: var(--text-1);
-    line-height: 1.2;
-  }
-  .page-sub {
-    font-size: 12px;
-    color: var(--text-3);
-    margin-top: 5px;
-    font-family: 'DM Mono', monospace;
-  }
-  .topbar-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-  }
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid transparent;
-  }
-  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; }
-  .btn-refresh {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 7px 14px;
-    border-radius: var(--radius);
-    border: 1px solid var(--blue);
-    background: var(--blue-lt);
-    color: var(--blue);
-    cursor: pointer;
-    transition: background .15s;
-  }
-  .btn-refresh:hover { background: #C5DEFA; }
-  .btn-refresh svg { width: 13px; height: 13px; }
-  .last-update { font-size: 10px; color: var(--text-3); font-family: 'DM Mono', monospace; }
-
-  /* ── KPI row ── */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    margin-bottom: 1.5rem;
-  }
-  .kpi {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    position: relative;
-    overflow: hidden;
-  }
-  .kpi::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px; height: 100%;
-    border-radius: 3px 0 0 3px;
-  }
-  .kpi.blue::before   { background: var(--blue); }
-  .kpi.green::before  { background: var(--green-md); }
-  .kpi.amber::before  { background: var(--amber-md); }
-  .kpi.purple::before { background: var(--purple); }
-  .kpi.teal::before   { background: var(--teal); }
-  .kpi-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); margin-bottom: 6px; }
-  .kpi-value { font-size: 26px; font-weight: 600; letter-spacing: -.02em; line-height: 1; margin-bottom: 3px; }
-  .kpi.blue .kpi-value   { color: var(--blue); }
-  .kpi.green .kpi-value  { color: var(--green); }
-  .kpi.amber .kpi-value  { color: var(--amber); }
-  .kpi.purple .kpi-value { color: var(--purple); }
-  .kpi.teal .kpi-value   { color: var(--teal); }
-  .kpi-hint { font-size: 11px; color: var(--text-3); }
-
-  /* ── Global progress ── */
-  .global-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-    margin-bottom: 1.5rem;
-  }
-  .global-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-  .global-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); }
-  .global-numbers { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
-  .track {
-    height: 10px;
-    background: var(--bg);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 6px;
-    border: 1px solid var(--border);
-  }
-  .fill {
-    height: 100%;
-    border-radius: 10px;
-    transition: width .6s cubic-bezier(.4,0,.2,1);
-  }
-  .track-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-3); font-family: 'DM Mono', monospace; }
-
-  /* ── Section header ── */
-  .section-hd {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 2rem 0 1rem;
-  }
-  .section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .07em; color: var(--text-3); }
-
-  /* ── Week cards ── */
-  .week-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 22px;
-    margin-bottom: 10px;
-    transition: border-color .15s;
-  }
-  .week-card:hover { border-color: var(--border2); }
-  .week-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 14px;
-  }
-  .week-left {}
-  .week-name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-  .week-name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    font-size: 10px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 12px;
-  }
-  .week-meta { font-size: 11px; color: var(--text-3); font-family: 'DM Mono', monospace; }
-  .week-metrics {
-    display: flex;
-    gap: 20px;
-    text-align: right;
-  }
-  .metric { }
-  .metric-val { font-size: 16px; font-weight: 600; letter-spacing: -.01em; display: block; }
-  .metric-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); }
-
-  /* ── Table ── */
-  .table-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th {
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    color: var(--text-3);
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    text-align: left;
-    background: var(--bg);
-  }
-  tbody td { padding: 9px 16px; border-bottom: 1px solid var(--border); color: var(--text-1); }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--bg); }
-
-  /* ── Loader / error ── */
-  .loader {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 4rem; gap: 14px;
-    color: var(--text-3); font-size: 13px;
-  }
-  .spinner {
-    width: 30px; height: 30px;
-    border: 2px solid var(--border);
-    border-top-color: var(--blue);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .err-box {
-    background: var(--red-lt);
-    border: 1px solid #F09595;
-    border-radius: var(--radius);
-    padding: 12px 16px;
-    color: var(--red);
-    font-size: 12px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ── Footer ── */
-  .footer {
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--text-3);
-    font-family: 'DM Mono', monospace;
-  }
-  .src-link { color: var(--blue); text-decoration: none; }
-  .src-link:hover { text-decoration: underline; }
-
-  @media (max-width: 640px) {
-    .week-metrics { gap: 10px; }
-    .metric-val { font-size: 14px; }
-    .page-title { font-size: 20px; }
-    .global-numbers { font-size: 16px; }
-  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,Arial,sans-serif;font-size:15px;line-height:1.5;
+    font-variant-numeric:tabular-nums}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 48px}
+  header{background:var(--slate);color:#fff;padding:20px 0;margin-bottom:24px}
+  header .wrap{padding-bottom:0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  header h1{font-size:18px;font-weight:600;margin:0;letter-spacing:.2px}
+  header .sub{font-size:12.5px;color:#a9c2d1;margin-top:2px}
+  header .upd{font-size:12px;color:#a9c2d1;text-align:right}
+  h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:28px 0 12px}
+  /* HERO */
+  .hero{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:16px}
+  @media(max-width:820px){.hero{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .hero .lead{position:relative;overflow:hidden}
+  .badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+    padding:4px 11px;border-radius:999px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .lead .big{font-size:52px;font-weight:700;line-height:1;margin:14px 0 2px}
+  .lead .unit{font-size:18px;font-weight:500;color:var(--muted)}
+  .lead .qb{font-size:14px;color:var(--muted);margin-top:6px}
+  .lead .qb b{color:var(--ink);font-weight:600}
+  .kpi .lbl{font-size:12.5px;color:var(--muted);font-weight:500}
+  .kpi .val{font-size:30px;font-weight:700;margin-top:8px}
+  .kpi .note{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .bar{height:10px;border-radius:6px;background:#e9eef2;overflow:hidden;margin-top:12px}
+  .bar > i{display:block;height:100%;border-radius:6px;transition:width .4s}
+  /* KPI strip */
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:820px){.strip{grid-template-columns:repeat(2,1fr)}}
+  .mini{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .mini .lbl{font-size:12px;color:var(--muted);font-weight:500}
+  .mini .val{font-size:21px;font-weight:600;margin-top:5px}
+  /* layout cols */
+  .grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:20px;align-items:start}
+  @media(max-width:980px){.grid2{grid-template-columns:1fr}}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .sw{width:14px;height:4px;border-radius:2px}
+  .chart-box{position:relative;height:330px}
+  /* params */
+  .params .row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .params .row:last-child{border-bottom:0}
+  .params label{font-size:13.5px;color:var(--ink)}
+  .params .hint{font-size:11.5px;color:var(--muted);display:block}
+  input[type=number],input[type=date]{font-family:inherit;font-size:14px;width:118px;
+    padding:7px 9px;border:1px solid var(--line);border-radius:8px;text-align:right;
+    background:#fff;color:var(--ink);font-variant-numeric:tabular-nums}
+  input[type=date]{width:148px;text-align:left}
+  input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+  .switch{display:flex;gap:6px}
+  .switch button{font-family:inherit;font-size:12.5px;font-weight:500;padding:6px 12px;border:1px solid var(--line);
+    background:#fff;color:var(--muted);cursor:pointer;border-radius:8px}
+  .switch button.on{background:var(--slate);color:#fff;border-color:var(--slate)}
+  .derived{background:#f5f8fa;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:12px;font-size:13px}
+  .derived div{display:flex;justify-content:space-between;padding:3px 0}
+  .derived b{font-weight:600}
+  .consgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:6px}
+  .consgrid div{display:flex;flex-direction:column;gap:3px}
+  .consgrid span{font-size:11px;color:var(--muted);text-align:center}
+  .consgrid input{width:100%;text-align:center;padding:6px 4px;font-size:12.5px}
+  .foot{font-size:12px;color:var(--muted);margin-top:24px;line-height:1.6}
+  .pill{display:inline-block;background:#eef2f5;border-radius:6px;padding:1px 7px;font-size:12px}
 </style>
 </head>
 <body>
-
-<div class="shell">
-
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="product-tag"><span></span>2004144 · PASTA DE SOYA 1KG</div>
-      <h1 class="page-title">Control de Arribo<br>Post-Pago</h1>
-      <p class="page-sub" id="sub-text">BASE DE DATOS ALMACENERA · PRÉSTAMO 3000 TM</p>
+<header>
+  <div class="wrap">
+    <div>
+      <h1>Indicador de abastecimiento — Pasta de soya</h1>
+      <div class="sub">Almacenera S.A. · Proyección de stock, autonomía y punto de quiebre</div>
     </div>
-    <div class="topbar-right">
-      <span class="status-badge" id="status-badge">
-        <span class="dot" id="status-dot"></span>
-        <span id="status-text">Cargando...</span>
-      </span>
-      <button class="btn-refresh" onclick="loadData()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>
-        </svg>
-        Actualizar
-      </button>
-      <span class="last-update" id="last-update">—</span>
+    <div class="upd">Actualizado: <span id="now">—</span><br>Recálculo en vivo</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="card lead">
+      <span class="badge" id="semBadge"><span class="dot" id="semDot"></span><span id="semTxt">—</span></span>
+      <div class="big"><span id="autoDias">—</span> <span class="unit">días</span></div>
+      <div style="font-size:13px;color:var(--muted)">de autonomía desde el inicio</div>
+      <div class="qb">Quiebre estimado: <b id="qbFecha">—</b> · primer faltante <b id="qbDefic">—</b></div>
+    </div>
+    <div class="card kpi">
+      <div class="lbl">Ocupación actual de bodega</div>
+      <div class="val"><span id="ocupPct">—</span>%</div>
+      <div class="note"><span id="ocupKg">—</span> de <span id="capKg">—</span> kg</div>
+      <div class="bar"><i id="ocupBar" style="width:0;background:var(--blue)"></i></div>
+    </div>
+    <div class="card kpi">
+      <div class="lbl">Pico proyectado</div>
+      <div class="val"><span id="picoPct">—</span>%</div>
+      <div class="note"><span id="picoKg">—</span> kg · <span id="picoFecha">—</span></div>
+      <div class="bar"><i id="picoBar" style="width:0;background:var(--teal)"></i></div>
     </div>
   </div>
 
-  <div id="err-container"></div>
+  <h2>Indicadores clave</h2>
+  <div class="strip">
+    <div class="mini"><div class="lbl">Stock actual en planta</div><div class="val"><span id="mStock">—</span> kg</div></div>
+    <div class="mini"><div class="lbl">Pendiente en puerto</div><div class="val"><span id="mPort">—</span> kg</div></div>
+    <div class="mini"><div class="lbl">Consumo promedio / día</div><div class="val"><span id="mCons">—</span> kg</div></div>
+    <div class="mini"><div class="lbl">Recepción / día (Lun-Vie)</div><div class="val"><span id="mRec">—</span> kg</div></div>
+  </div>
 
-  <div id="main">
-    <div class="loader">
-      <div class="spinner"></div>
-      <span>Conectando con Google Sheets...</span>
+  <div class="grid2" style="margin-top:28px">
+    <div>
+      <h2 style="margin-top:0">Proyección de stock vs. consumo</h2>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--blue)"></span>Stock en bodega</span>
+        <span><span class="sw" style="background:var(--teal)"></span>Saldo diario +</span>
+        <span><span class="sw" style="background:var(--coral)"></span>Saldo diario −</span>
+        <span><span class="sw" style="background:var(--red);border-top:2px dashed var(--red)"></span>Capacidad</span>
+      </div>
+      <div class="card"><div class="chart-box"><canvas id="chart"></canvas></div></div>
+
+      <h2>Meta de cobertura</h2>
+      <div class="card">
+        <div class="params" style="margin:0">
+          <div class="row"><label>Quiero cubrir producción hasta…</label><input type="date" id="meta" value="2026-07-15"></div>
+        </div>
+        <div class="derived" style="margin-top:10px">
+          <div><span>Consumo estimado hasta esa fecha</span><b id="metaCons">—</b></div>
+          <div><span>Producto total disponible hoy</span><b id="metaDisp">—</b></div>
+          <div style="border-top:1px solid var(--line);margin-top:4px;padding-top:7px"><span>Kg adicionales a traer al puerto</span><b id="metaFalta" style="color:var(--red)">—</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 style="margin-top:0">Parámetros</h2>
+      <div class="card params">
+        <div class="row"><label>Fecha de inicio</label><input type="date" id="inicio" value="2026-06-16"></div>
+        <div class="row"><label>Stock actual en planta <span class="hint">kg</span></label><input type="number" id="stock" value="189536"></div>
+        <div class="row"><label>Pendiente en puerto <span class="hint">kg</span></label><input type="number" id="port" value="2118000"></div>
+        <div class="row"><label>Capacidad bodega <span class="hint">kg</span></label><input type="number" id="cap" value="1600000"></div>
+        <div class="row"><label>kg por carro de soya</label><input type="number" id="kgCarro" value="32000"></div>
+        <div class="row"><label>Tiempo descarga soya <span class="hint">min/carro</span></label><input type="number" id="minSoya" value="30"></div>
+        <div class="row"><label>Horas de turno (Lun-Vie)</label><input type="number" id="horasNoche" value="12"></div>
+        <div class="row"><label>Horas sábado (hasta 14:00)</label><input type="number" id="horasSab" value="4"></div>
+        <div class="row"><label>¿Maíz comparte la ventana? <span class="hint">resta tiempo a la soya</span></label>
+          <div class="switch"><button id="mzSi" class="on">Sí</button><button id="mzNo">No</button></div></div>
+        <div class="row"><label>Carros de maíz / día</label><input type="number" id="carrosMaiz" value="6"></div>
+        <div class="row"><label>Tiempo descarga maíz <span class="hint">min/carro</span></label><input type="number" id="minMaiz" value="50"></div>
+      </div>
+      <div class="derived">
+        <div><span>Carros de soya / noche (Lun-Vie)</span><b id="dLV">—</b></div>
+        <div><span>Carros de soya / sábado</span><b id="dSab">—</b></div>
+        <div><span>Recepción Lun-Vie</span><b id="dRecLV">—</b></div>
+        <div><span>Recepción sábado</span><b id="dRecSab">—</b></div>
+      </div>
+
+      <h2>Consumo por día <span style="text-transform:none;font-weight:400">(kg, prom. histórico — editable)</span></h2>
+      <div class="card">
+        <div class="consgrid" id="consGrid"></div>
+      </div>
     </div>
   </div>
 
-  <div class="footer">
-    <span>Fuente: <a class="src-link" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQsHD68GsN5kH9NtuQF5g_Q_lTQmJEv6YDnLfnd6zurixDZrkw-7loPPxlBEC3khaX3vnlM4eFNuXBy/pub?gid=868160652&single=true&output=csv" target="_blank">Google Sheets · PRESTAMO 3000 TM</a></span>
-    <span id="footer-time">—</span>
+  <div class="foot">
+    Lógica: la recepción solo ocurre Lun-Vie + sábado; producción consume los 7 días. El <b>punto de quiebre</b> es el primer día en que el stock disponible no cubre el consumo. La fecha de quiebre depende del <b>volumen total disponible</b> (stock + pendiente puerto) ÷ consumo, no del ritmo de descarga. <span class="pill">Tip</span> puedes enlazar este tablero a un CSV publicado de Google Sheets editando la función <code>cargarDesdeCSV()</code> al final del archivo, igual que tus otros dashboards.
   </div>
-
 </div>
 
 <script>
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQsHD68GsN5kH9NtuQF5g_Q_lTQmJEv6YDnLfnd6zurixDZrkw-7loPPxlBEC3khaX3vnlM4eFNuXBy/pub?gid=868160652&single=true&output=csv';
+const $=id=>document.getElementById(id);
+const DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; // getDay 0..6
+const consDef=[152800,158544,156604,175284,163250,192210,201552]; // Dom..Sáb
+let maizComparte=true;
+const fmt=n=>Math.round(n).toLocaleString('es-EC');
+const fmtK=n=>(n/1e6).toFixed(2)+' M';
 
-// Fallback data (from image)
-const FALLBACK = [
-  {id:'WEEK22',label:'WEEK 22',cupo:500,arribo:0,vehiculos:0,pagos:[{fecha:'28/05/2026',ton:500,arribo:0},{fecha:'29/05/2026',ton:0,arribo:0},{fecha:'30/05/2026',ton:0,arribo:0}]},
-  {id:'WEEK23',label:'WEEK 23',cupo:2500,arribo:0,vehiculos:0,pagos:[{fecha:'31/05/2026',ton:0,arribo:0},{fecha:'01/06/2026',ton:500,arribo:0},{fecha:'02/06/2026',ton:0,arribo:0},{fecha:'03/06/2026',ton:500,arribo:0},{fecha:'04/06/2026',ton:1500,arribo:0},{fecha:'05/06/2026',ton:0,arribo:0},{fecha:'06/06/2026',ton:0,arribo:0}]},
-  {id:'WEEK24',label:'WEEK 24',cupo:0,arribo:0,vehiculos:0,pagos:[{fecha:'07/06/2026',ton:0,arribo:0},{fecha:'08/06/2026',ton:0,arribo:0},{fecha:'09/06/2026',ton:0,arribo:0},{fecha:'10/06/2026',ton:0,arribo:0},{fecha:'11/06/2026',ton:0,arribo:0},{fecha:'12/06/2026',ton:0,arribo:0},{fecha:'13/06/2026',ton:0,arribo:0}]},
-  {id:'WEEK25',label:'WEEK 25',cupo:0,arribo:0,vehiculos:0,pagos:[{fecha:'14/06/2026',ton:0,arribo:0}]},
-];
+// construir inputs de consumo (orden Lun..Dom para lectura natural)
+const ordenVis=[1,2,3,4,5,6,0];
+const cg=$('consGrid');
+ordenVis.forEach(wd=>{
+  const d=document.createElement('div');
+  d.innerHTML=`<span>${DIAS[wd]}</span><input type="number" data-wd="${wd}" value="${consDef[wd]}">`;
+  cg.appendChild(d);
+});
 
-let weeks = [];
-
-// ── Color helpers ──
-function colSet(p, hasCupo) {
-  if (!hasCupo) return { fill: '#B5D4F4', text: '#0C447C', bg: '#E6F1FB', border: '#85B7EB' };
-  if (p === 0)  return { fill: '#B4B2A9', text: '#444441', bg: '#F1EFE8', border: '#B4B2A9' };
-  if (p < 70)   return { fill: '#97C459', text: '#27500A', bg: '#EAF3DE', border: '#97C459' };
-  if (p <= 100) return { fill: '#EF9F27', text: '#633806', bg: '#FAEEDA', border: '#EF9F27' };
-  return           { fill: '#E24B4A', text: '#791F1F', bg: '#FCEBEB', border: '#E24B4A' };
+function leerCons(){
+  const c=[...consDef];
+  document.querySelectorAll('#consGrid input').forEach(i=>{c[+i.dataset.wd]=+i.value||0});
+  return c;
 }
-function statusLabel(a, c) {
-  if (c === 0) return 'Sin cupo';
-  if (a === 0) return 'Pendiente';
-  if (a < c)   return 'En progreso';
-  if (a === c) return 'Completo';
-  return 'Excede cupo';
+function params(){
+  return {stock:+$('stock').value,port:+$('port').value,cap:+$('cap').value,
+    kgCarro:+$('kgCarro').value,minSoya:+$('minSoya').value,horasNoche:+$('horasNoche').value,
+    horasSab:+$('horasSab').value,maizComparte,carrosMaiz:+$('carrosMaiz').value,
+    minMaiz:+$('minMaiz').value,inicio:$('inicio').value,cons:leerCons()};
 }
-function pct(a, c) { return c > 0 ? Math.min(999, Math.round(a / c * 100)) : 0; }
-function fmt(n) { return Number(n).toLocaleString('es-EC'); }
-
-// ── CSV parser ──
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const map = {};
-  lines.slice(1).forEach(line => {
-    const cols = [];
-    let cur = '', inQ = false;
-    for (const ch of line) {
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else cur += ch;
-    }
-    cols.push(cur.trim());
-    const wk = (cols[0] || '').trim();
-    if (!wk.toUpperCase().includes('WEEK')) return;
-    const ton    = parseFloat(cols[3]) || 0;
-    const fecha  = (cols[4] || '').trim();
-    const arribo = parseFloat(cols[5]) || 0;
-    const veh    = parseFloat(cols[6]) || 0;
-    if (!map[wk]) map[wk] = { id: wk.replace(/\s/g,''), label: wk, cupo: 0, arribo: 0, vehiculos: 0, pagos: [] };
-    map[wk].cupo     += ton;
-    map[wk].arribo   += arribo;
-    map[wk].vehiculos+= veh;
-    if (fecha) map[wk].pagos.push({ fecha, ton, arribo });
-  });
-  return Object.values(map);
-}
-
-// ── Render ──
-function render() {
-  const totCupo = weeks.reduce((s,w) => s+w.cupo, 0);
-  const totArr  = weeks.reduce((s,w) => s+w.arribo, 0);
-  const totVeh  = weeks.reduce((s,w) => s+w.vehiculos, 0);
-  const avail   = Math.max(0, totCupo - totArr);
-  const gPct    = pct(totArr, totCupo);
-  const gCol    = colSet(gPct, totCupo > 0);
-  const semAct  = weeks.filter(w => w.cupo > 0).length;
-
-  // Status badge
-  const badge = document.getElementById('status-badge');
-  const dot   = document.getElementById('status-dot');
-  const stxt  = document.getElementById('status-text');
-  badge.style.cssText = `background:${gCol.bg};color:${gCol.text};border:1px solid ${gCol.border};`;
-  dot.style.background = gCol.fill;
-  stxt.textContent = totCupo > 0 ? `${gPct}% utilizado` : 'Sin cupo aperturado';
-
-  // KPI row
-  let html = `
-  <div class="kpi-row">
-    <div class="kpi blue">
-      <div class="kpi-label">Cupo aperturado</div>
-      <div class="kpi-value">${fmt(totCupo)}</div>
-      <div class="kpi-hint">TON habilitadas</div>
-    </div>
-    <div class="kpi green">
-      <div class="kpi-label">Arribo registrado</div>
-      <div class="kpi-value">${fmt(totArr)}</div>
-      <div class="kpi-hint">TON ingresadas</div>
-    </div>
-    <div class="kpi ${avail > 0 ? 'amber' : 'teal'}">
-      <div class="kpi-label">Cupo disponible</div>
-      <div class="kpi-value">${fmt(avail)}</div>
-      <div class="kpi-hint">TON por utilizar</div>
-    </div>
-    <div class="kpi purple">
-      <div class="kpi-label">Vehículos</div>
-      <div class="kpi-value">${fmt(totVeh)}</div>
-      <div class="kpi-hint">registrados</div>
-    </div>
-    <div class="kpi teal">
-      <div class="kpi-label">Semanas activas</div>
-      <div class="kpi-value">${semAct} / ${weeks.length}</div>
-      <div class="kpi-hint">con cupo aperturado</div>
-    </div>
-  </div>`;
-
-  // Global progress
-  html += `
-  <div class="global-card">
-    <div class="global-header">
-      <span class="global-label">Ejecución global del cupo</span>
-      <span class="global-numbers" style="color:${gCol.text};">${fmt(totArr)} / ${fmt(totCupo)} TON</span>
-    </div>
-    <div class="track">
-      <div class="fill" style="width:${Math.min(100,gPct)}%;background:${gCol.fill};"></div>
-    </div>
-    <div class="track-labels">
-      <span>0 TON</span>
-      <span style="color:${gCol.text};font-weight:600;">${gPct}%</span>
-      <span>${fmt(totCupo)} TON</span>
-    </div>
-  </div>`;
-
-  // Week cards
-  html += `<div class="section-hd">
-    <span class="section-label">Seguimiento por semana</span>
-    <span style="font-size:11px;color:var(--text-3);">${weeks.length} semanas en seguimiento</span>
-  </div>`;
-
-  weeks.forEach(w => {
-    const p   = pct(w.arribo, w.cupo);
-    const c   = colSet(p, w.cupo > 0);
-    const st  = statusLabel(w.arribo, w.cupo);
-    const primero = w.pagos.find(d => d.ton > 0);
-
-    html += `
-    <div class="week-card">
-      <div class="week-top">
-        <div class="week-left">
-          <div class="week-name-row">
-            <span class="week-name">${w.label}</span>
-            <span class="pill" style="background:${c.bg};color:${c.text};">${st}</span>
-          </div>
-          <div class="week-meta">${primero ? 'Primer pago: '+primero.fecha+' · '+fmt(primero.ton)+' TON' : 'Sin pagos con cupo registrado'}</div>
-        </div>
-        <div class="week-metrics">
-          <div class="metric">
-            <span class="metric-val" style="color:#185FA5;">${fmt(w.cupo)}</span>
-            <span class="metric-lbl">Cupo</span>
-          </div>
-          <div class="metric">
-            <span class="metric-val" style="color:#27500A;">${fmt(w.arribo)}</span>
-            <span class="metric-lbl">Arribo</span>
-          </div>
-          <div class="metric">
-            <span class="metric-val" style="color:${c.text};">${fmt(Math.max(0,w.cupo-w.arribo))}</span>
-            <span class="metric-lbl">Disponible</span>
-          </div>
-          <div class="metric">
-            <span class="metric-val" style="color:#3C3489;">${fmt(w.vehiculos)}</span>
-            <span class="metric-lbl">Vehículos</span>
-          </div>
-        </div>
-      </div>
-      <div class="track">
-        <div class="fill" style="width:${Math.min(100,p)}%;background:${c.fill};"></div>
-      </div>
-      <div class="track-labels">
-        <span>0</span>
-        <span style="color:${c.text};font-weight:600;">${w.cupo > 0 ? p+'% ejecutado' : 'Sin cupo aperturado'}</span>
-        <span>${fmt(w.cupo)} TON</span>
-      </div>
-    </div>`;
-  });
-
-  // Table
-  html += `
-  <div class="section-hd">
-    <span class="section-label">Apertura de cupo por fecha de pago</span>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Semana</th>
-          <th>Fecha de pago</th>
-          <th style="text-align:right;">Cupo (TON)</th>
-          <th style="text-align:right;">Arribo (TON)</th>
-          <th style="text-align:right;">Acumulado (TON)</th>
-        </tr>
-      </thead>
-      <tbody>`;
-  let acum = 0;
-  weeks.forEach(w => {
-    w.pagos.forEach(pg => {
-      acum += pg.ton;
-      html += `<tr>
-        <td style="color:var(--text-3);font-family:'DM Mono',monospace;">${w.label}</td>
-        <td style="font-family:'DM Mono',monospace;">${pg.fecha}</td>
-        <td style="text-align:right;font-weight:${pg.ton>0?'600':'400'};color:${pg.ton>0?'#185FA5':'var(--text-3)'};">${pg.ton > 0 ? fmt(pg.ton) : '—'}</td>
-        <td style="text-align:right;color:#27500A;font-weight:${pg.arribo>0?'600':'400'};">${pg.arribo > 0 ? fmt(pg.arribo) : '—'}</td>
-        <td style="text-align:right;color:var(--text-2);font-family:'DM Mono',monospace;">${acum > 0 ? fmt(acum) : '—'}</td>
-      </tr>`;
-    });
-  });
-  html += `</tbody></table></div>`;
-
-  document.getElementById('main').innerHTML = html;
-}
-
-// ── Load ──
-async function loadData() {
-  document.getElementById('main').innerHTML = `<div class="loader"><div class="spinner"></div><span>Conectando con Google Sheets...</span></div>`;
-  document.getElementById('err-container').innerHTML = '';
-  document.getElementById('status-text').textContent = 'Cargando...';
-
-  try {
-    const res = await fetch(CSV_URL, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const parsed = parseCSV(text);
-    if (!parsed.length) throw new Error('Sin datos en el CSV');
-    weeks = parsed;
-    const now = new Date();
-    const ts = now.toLocaleDateString('es-EC') + ' · ' + now.toLocaleTimeString('es-EC',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('last-update').textContent = 'Actualizado: ' + ts;
-    document.getElementById('footer-time').textContent = ts;
-  } catch(e) {
-    document.getElementById('err-container').innerHTML = `
-      <div class="err-box">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        No se pudo conectar con Google Sheets (${e.message}). Mostrando datos de respaldo.
-      </div>`;
-    if (!weeks.length) weeks = FALLBACK;
+function simular(p){
+  const minMaiz=p.maizComparte?p.carrosMaiz*p.minMaiz:0;
+  const carrosLV=Math.max(0,Math.floor((p.horasNoche*60-minMaiz)/p.minSoya));
+  const carrosSab=Math.max(0,Math.floor(p.horasSab*60/p.minSoya));
+  const recLV=carrosLV*p.kgCarro, recSab=carrosSab*p.kgCarro;
+  let stock=p.stock,recv=0,peak={v:p.stock,d:null},quiebre=null,defic=0,fill=null;
+  const serie=[]; let d=new Date(p.inicio+'T00:00:00');
+  for(let i=0;i<160;i++){
+    const wd=d.getDay(), cons=p.cons[wd];
+    const capDay=(wd>=1&&wd<=5)?recLV:(wd===6?recSab:0);
+    const rec=Math.max(0,Math.min(capDay,p.port-recv,Math.max(p.cap-stock+cons,0)));
+    recv+=rec; const disp=stock+rec;
+    if(disp<cons&&!quiebre){quiebre=new Date(d);defic=cons-disp;}
+    stock=Math.max(disp-cons,0);
+    if(stock>peak.v)peak={v:stock,d:new Date(d)};
+    if(stock>=p.cap*0.999&&!fill)fill=new Date(d);
+    serie.push({d:new Date(d),stock,net:rec-cons});
+    d.setDate(d.getDate()+1);
   }
+  return {carrosLV,carrosSab,recLV,recSab,peak,quiebre,defic,fill,serie};
+}
+const fechaCorta=dt=>dt?dt.toLocaleDateString('es-EC',{weekday:'short',day:'2-digit',month:'2-digit'}):'—';
+
+let chart;
+function render(){
+  const p=params(), r=simular(p);
+  const prom=p.cons.reduce((a,b)=>a+b,0)/7;
+  // autonomía (días desde inicio hasta quiebre)
+  const ini=new Date(p.inicio+'T00:00:00');
+  const auto=r.quiebre?Math.round((r.quiebre-ini)/86400000):'>160';
+  $('autoDias').textContent=auto;
+  $('qbFecha').textContent=fechaCorta(r.quiebre);
+  $('qbDefic').textContent=r.quiebre?fmt(r.defic)+' kg':'—';
+  // semáforo
+  const dias=typeof auto==='number'?auto:999;
+  let col,txt;
+  if(dias>=14){col='var(--teal)';txt='Holgado';}
+  else if(dias>=7){col='var(--amber)';txt='Atención';}
+  else{col='var(--red)';txt='Crítico';}
+  $('semDot').style.background=col;$('semTxt').textContent=txt;
+  $('semBadge').style.background=col+'1a';$('semBadge').style.color=col;
+  $('autoDias').style.color=col;
+  // ocupación
+  const op=p.stock/p.cap*100;
+  $('ocupPct').textContent=op.toFixed(1);$('ocupKg').textContent=fmt(p.stock);
+  $('capKg').textContent=fmt(p.cap);$('ocupBar').style.width=Math.min(op,100)+'%';
+  // pico
+  const pp=r.peak.v/p.cap*100;
+  $('picoPct').textContent=pp.toFixed(0);$('picoKg').textContent=fmt(r.peak.v);
+  $('picoFecha').textContent=fechaCorta(r.peak.d);$('picoBar').style.width=Math.min(pp,100)+'%';
+  $('picoBar').style.background=pp>=99?'var(--teal)':'var(--amber)';
+  // strip
+  $('mStock').textContent=fmt(p.stock);$('mPort').textContent=fmt(p.port);
+  $('mCons').textContent=fmt(prom);$('mRec').textContent=fmt(r.recLV);
+  // derivados
+  $('dLV').textContent=r.carrosLV+' carros';$('dSab').textContent=r.carrosSab+' carros';
+  $('dRecLV').textContent=fmt(r.recLV)+' kg';$('dRecSab').textContent=fmt(r.recSab)+' kg';
+  // meta de cobertura
+  const meta=new Date($('meta').value+'T00:00:00');
+  let consMeta=0,dd=new Date(ini);
+  while(dd<=meta){consMeta+=p.cons[dd.getDay()];dd.setDate(dd.getDate()+1);}
+  const disp=p.stock+p.port, falta=Math.max(0,consMeta-disp);
+  $('metaCons').textContent=fmt(consMeta)+' kg';
+  $('metaDisp').textContent=fmt(disp)+' kg';
+  $('metaFalta').textContent=fmt(falta)+' kg';
+  $('metaFalta').style.color=falta>0?'var(--red)':'var(--teal)';
+  // chart (primeros 22 días)
+  const s=r.serie.slice(0,22);
+  const labels=s.map(x=>x.d.toLocaleDateString('es-EC',{day:'2-digit',month:'2-digit'}));
+  const stockD=s.map(x=>x.stock), netD=s.map(x=>x.net), capD=s.map(()=>p.cap);
+  const qIdx=r.quiebre?s.findIndex(x=>+x.d===+r.quiebre):-1;
+  const ptR=stockD.map((_,i)=>i===qIdx?6:3);
+  const ptC=stockD.map((_,i)=>i===qIdx?'#A32D2D':'#185FA5');
+  const data={labels,datasets:[
+    {type:'bar',label:'Saldo diario',data:netD,yAxisID:'y1',order:2,
+      backgroundColor:netD.map(v=>v>=0?'#1D9E75':'#D85A30')},
+    {type:'line',label:'Stock',data:stockD,yAxisID:'y',order:1,borderColor:'#185FA5',
+      backgroundColor:'#185FA5',tension:.3,pointRadius:ptR,pointBackgroundColor:ptC,borderWidth:2.4},
+    {type:'line',label:'Capacidad',data:capD,yAxisID:'y',order:0,borderColor:'#A32D2D',
+      borderDash:[5,4],pointRadius:0,borderWidth:1.5}
+  ]};
+  const opts={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)+' kg'}}},
+    scales:{y:{position:'left',ticks:{callback:v=>(v/1e6).toFixed(1)+'M'},title:{display:true,text:'Stock (kg)'}},
+      y1:{position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>(v/1e3)+'k'},title:{display:true,text:'Saldo (kg)'}},
+      x:{ticks:{autoSkip:false,maxRotation:50,font:{size:10}}}}};
+  if(chart){chart.data=data;chart.options=opts;chart.update();}
+  else chart=new Chart($('chart'),{data,options:opts});
+}
+
+// eventos
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',render));
+$('mzSi').onclick=()=>{maizComparte=true;$('mzSi').classList.add('on');$('mzNo').classList.remove('on');render();};
+$('mzNo').onclick=()=>{maizComparte=false;$('mzNo').classList.add('on');$('mzSi').classList.remove('on');render();};
+$('now').textContent=new Date().toLocaleString('es-EC',{dateStyle:'medium',timeStyle:'short'});
+render();
+
+/* OPCIONAL — enlazar a un CSV publicado de Google Sheets (mismo patrón de tus otros tableros).
+   Ajusta los índices de columna/fila a tu hoja y llama cargarDesdeCSV(url) al cargar la página.
+async function cargarDesdeCSV(url){
+  const txt=await (await fetch(url)).text();
+  const filas=txt.trim().split('\n').map(r=>r.split(','));
+  // ejemplo: $('stock').value = filas[1][2]; $('port').value = filas[1][1];
   render();
 }
-
-loadData();
+*/
 </script>
 </body>
 </html>
