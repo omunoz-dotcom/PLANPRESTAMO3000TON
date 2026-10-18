@@ -48,8 +48,11 @@ Variables de entorno:
 | `UTC_OFFSET` | -5 | Zona horaria (Ecuador) para generar tareas por turno |
 | `TOKEN_DAYS` | 30 | Días de validez de la sesión (permite trabajar offline) |
 | `SECRET` | autogenerado | Clave para firmar sesiones |
+| `TRUST_PROXY` | 0 | `1` cuando corre detrás del proxy HTTPS de la nube |
 
 ## Despliegue
+
+**Nube (recomendado): guía paso a paso en [`docs/DESPLIEGUE_NUBE.md`](docs/DESPLIEGUE_NUBE.md)** — Render con el `render.yaml` incluido, o cualquier servicio compatible con Docker.
 
 Para que funcione en celulares (cámara, instalación, modo offline) el sitio debe servirse por **HTTPS**. Opciones:
 

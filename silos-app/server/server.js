@@ -15,6 +15,7 @@ const PORT = Number(process.env.PORT || 8080);
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, '../data'));
 const UTC_OFFSET = Number(process.env.UTC_OFFSET ?? -5);
 const TOKEN_DAYS = Number(process.env.TOKEN_DAYS || 30);
+const TRUST_PROXY = process.env.TRUST_PROXY === '1'; // detrás del proxy HTTPS de la nube
 
 const db = openDb(DATA_DIR);
 seed(db, { adminPassword: process.env.ADMIN_PASSWORD, demo: process.env.DEMO === '1' });
@@ -86,7 +87,8 @@ const routes = {
 
   'POST /api/login': async (req) => {
     const { username, password } = await readBody(req);
-    const key = `${req.socket.remoteAddress}|${String(username).toLowerCase()}`;
+    const ip = TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress : req.socket.remoteAddress;
+    const key = `${ip}|${String(username).toLowerCase()}`;
     if (throttled(key)) return [429, { error: 'Demasiados intentos. Espere 10 minutos.' }];
     const u = db.prepare(`SELECT * FROM users WHERE username = ?`).get(String(username || '').trim().toLowerCase());
     if (!u || !u.active || !checkPassword(String(password || ''), u.pass)) {
@@ -166,7 +168,7 @@ const routes = {
 function handleStream(req, res, url) {
   const user = readToken(url.searchParams.get('token'));
   if (!user) return send(res, 401, { error: 'No autorizado' });
-  res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', ...CORS });
+  res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Accel-Buffering': 'no', ...CORS });
   res.write(`retry: 5000\n\n`);
   const s = { res, uid: user.id };
   streams.add(s);
