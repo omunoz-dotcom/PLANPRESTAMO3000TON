@@ -1,0 +1,13 @@
+{
+  "name": "silos-control-area",
+  "version": "1.0.0",
+  "description": "Plataforma de control de limpieza, daños de equipos y alertas del área de silos (PWA offline + servidor de sincronización)",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --no-warnings server/server.js",
+    "demo": "DEMO=1 node --no-warnings server/server.js",
+    "test": "node --no-warnings --test test/*.test.js"
+  }
+}
